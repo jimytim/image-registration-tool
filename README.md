@@ -38,7 +38,7 @@ You need a modern web browser with **WebAssembly** support (Chrome, Firefox, Edg
 ### Installation
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/your-username/image-registration-tool.git](https://github.com/your-username/image-registration-tool.git)
+    git clone https://github.com/jimytim/image-registration-tool.git
     ```
 2.  Navigate to the project folder:
     ```bash
