@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Registration Tool</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      onerror="this.onerror=null;this.href='lib/fontawesome/css/all.min.css';">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+    <script>
+        if (typeof UTIF === 'undefined') {
+            document.write('<script src="lib/UTIF.min.js"><\/script>');
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/5.0.1/openseadragon.min.js"></script>
+    <script>
+        if (typeof OpenSeadragon === 'undefined') {
+            document.write('<script src="lib/openseadragon-5.0.1/openseadragon.min.js"><\/script>');
+        }
+    </script>
+
+    <script>
+        var Module = {
+            onRuntimeInitialized: function() {
+                console.log("OpenCV Runtime Initialized (Wasm Ready)");
+                window.cvReady = true;
+                document.dispatchEvent(new Event('opencv-ready'));
+            },
+            onAbort: function(err) {
+                console.error("OpenCV Aborted loading:", err);
+                alert("OpenCV failed to load. Check console for CORS/Network errors.");
+            }
+        };
+    </script>
+
+    <script async
+        src="https://docs.opencv.org/4.9.0/opencv.js"
+        type="text/javascript"
+        onerror="this.onerror=null; this.src='lib/opencv.js';">
+    </script>
+
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="left-section">
+            <div class="app-logo">Registrator</div>
+            <div class="divider"></div>
+            <div class="dropdown">
+                <button class="dropbtn" id="fileMenuBtn">File <i class="fas fa-chevron-down"></i></button>
+                <div class="dropdown-content" id="fileDropdown">
+                    <button type="button" class="dropdown-item" id="file-open-left-img">Open Left Image</button>
+                    <button type="button" class="dropdown-item" id="file-open-right-img">Open Right Image</button>
+                    <hr>
+                    <button type="button" class="dropdown-item" id="file-open-left-meta">Open Left Metadata</button>
+                    <button type="button" class="dropdown-item" id="file-open-right-meta">Open Right Metadata</button>
+                    <hr>
+                    <button type="button" class="dropdown-item" id="file-open-matching">Open Matching</button>
+                    <button type="button" class="dropdown-item" id="file-export-matching">Export Matching</button>
+                </div>
+
+                <input type="file" id="input-left-img" accept="image/*" style="display: none;" />
+                <input type="file" id="input-right-img" accept="image/*" style="display: none;" />
+                <input type="file" id="input-left-meta" accept=".json" style="display: none;" />
+                <input type="file" id="input-right-meta" accept=".json" style="display: none;" />
+                <input type="file" id="input-import-matching" accept=".json" style="display: none;" />
+
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="mode-switch">
+                <button class="mode-btn" id="btn-manual">Manual</button>
+                <button class="mode-btn" id="btn-auto">Automatic</button>
+            </div>
+            <button class="action-btn" id="btn-reset">Reset</button>
+            <button class="action-btn" id="btn-help">Help</button>
+            <button class="action-btn" id="btn-settings">Settings</button>
+        </div>
+
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label class="switch-container">
+                            <span>Show Matching Lines</span>
+                            <input type="checkbox" id="setting-show-lines">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="action-btn" id="btn-close-settings">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="tab-link" id="tab-preprocessing">Pre-Processing</button>
+        <button class="tab-link" id="tab-matching">Matching</button>
+        <button class="tab-link" id="tab-inspection">Inspection</button>
+    </nav>
+
+    <main class="main-content">
+
+        <div id="preprocessing" class="tab-content hidden">
+            <aside class="sidebar">
+                <div class="control-group">
+                    <label for="imageTarget">Target Image</label>
+                    <select id="imageTarget">
+                        <option value="left">Left Image</option>
+                        <option value="right">Right Image</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="cropLeft">Crop</label>
+                    <div class="input-row">
+                        <input type="number" id="cropLeft" placeholder="Left" aria-label="Crop Left">
+                        <input type="number" id="cropRight" placeholder="Right" aria-label="Crop Right">
+                    </div>
+                    <div class="input-row">
+                        <input type="number" id="cropTop" placeholder="Top" aria-label="Crop Top">
+                        <input type="number" id="cropBottom" placeholder="Bottom" aria-label="Crop Bottom">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="sliderRotate">Rotation</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <input type="range" id="sliderRotate" min="-180" max="180" value="0" step="0.1" style="flex-grow: 1; margin: 0;">
+                        <input type="number" id="numRotate" min="-180" max="180" value="0" step="any" style="width: 52px; text-align: right;" aria-label="Rotation Value">
+                        <span style="font-size: 0.9em;">°</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="sliderThresh">Thresholding</label>
+                    <div style="display: flex; align-items: center; gap: 2px; margin-bottom: 15px;">
+                        <input type="range" id="sliderThresh" min="0" max="255" value="0" style="flex:1;">
+                        <span id="valThresh" style="width: 30px; text-align: right;">0</span>
+                    </div>
+                </div>
+
+                <button id="btnApplyProc" class="full-width-btn">Apply</button>
+                <button id="btnResetProc" class="full-width-btn secondary">Reset</button>
+                <button id="btnSaveProc" class="full-width-btn">Save</button>
+            </aside>
+            <div class="viewer-container single-view">
+                <div id="osd-preprocessing" class="osd-viewer"></div>
+            </div>
+        </div>
+
+        <div id="matching" class="tab-content hidden">
+
+            <aside class="sidebar" id="match-auto-sidebar">
+                <h3>Algorithm</h3>
+                <select id="algo-select" aria-label="Select Detection Algorithm">
+                    <option>ORB</option>
+                    <option>AKAZE</option>
+                    <option>BRISK</option>
+                    <option>SIFT</option>
+                </select>
+
+                <div id="dynamic-params" style="margin-top: 15px;"></div>
+
+                <div class="control-group">
+                    <h4>Actions</h4>
+                    <button class="full-width-btn" id="detect-btn" disabled>Detect</button>
+                    <button class="full-width-btn" id="match-btn" disabled>Match</button>
+                    <button class="full-width-btn" id="filter-btn" disabled>Filter</button>
+                    <button class="full-width-btn" id="auto-clear-btn" style="margin-top: 5px;">Clear</button>
+                </div>
+            </aside>
+
+            <div class="viewer-container dual-view">
+                <div class="viewer-wrapper">
+                    <div id="osd-match-left" class="osd-viewer"></div>
+                </div>
+                <div class="viewer-wrapper">
+                    <div id="osd-match-right" class="osd-viewer"></div>
+                </div>
+
+                <canvas id="match-lines-canvas" class="lines-canvas hidden"></canvas>
+            </div>
+
+            <div id="keypoints-table-container" class="table-sidebar hidden">
+                <div class="table-scroll-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>X Left</th>
+                                <th>Y Left</th>
+                                <th>X Right</th>
+                                <th>Y Right</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keypoints-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="match-manual-toolbar" class="floating-toolbar hidden">
+                <div class="radio-group">
+                    <input type="radio" class="btn-check" name="manual-tool" id="tool-place" checked autocomplete="off">
+                    <label class="btn btn-float" for="tool-place">Place</label>
+
+                    <input type="radio" class="btn-check" name="manual-tool" id="tool-edit" autocomplete="off">
+                    <label class="btn btn-float" for="tool-edit">Edit</label>
+
+                    <input type="radio" class="btn-check" name="manual-tool" id="tool-remove" autocomplete="off">
+                    <label class="btn btn-float" for="tool-remove">Remove</label>
+                </div>
+                <div class="divider-vertical small"></div>
+                <button class="btn btn-float btn-danger" id="tool-clear">Clear</button>
+
+                <div class="divider-vertical small"></div>
+                <div class="checkbox-group" style="display: flex; align-items: center; gap: 6px;">
+                    <input type="checkbox" id="toggle-ids" style="width: auto; margin: 0; cursor: pointer;">
+                    <label for="toggle-ids" style="margin: 0; cursor: pointer; color: var(--text-main); font-size: 0.9rem;">Show IDs</label>
+                </div>
+                <div class="checkbox-group" style="display: flex; align-items: center; gap: 6px;">
+                    <input type="checkbox" id="toggle-table" style="width: auto; margin: 0; cursor: pointer;">
+                    <label for="toggle-table" style="margin: 0; cursor: pointer; color: var(--text-main); font-size: 0.9rem;">Table</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="inspection" class="tab-content hidden">
+            <div class="viewer-container dual-view">
+                <div class="viewer-wrapper">
+                    <span class="viewer-label label-bottom-right">Preview</span>
+                    <div id="osd-insp-preview" class="osd-viewer"></div>
+                </div>
+                <div class="viewer-wrapper">
+                    <span class="viewer-label label-bottom-left">Error Field</span>
+                    <div id="osd-insp-error" class="osd-viewer"></div>
+
+                    <div id="error-field-controls" class="error-controls">
+                        <div class="control-row">
+                            <span>Density</span>
+                            <div class="btn-group">
+                                <button id="err-spacing-dec" class="mini-btn">-</button>
+                                <button id="err-spacing-inc" class="mini-btn">+</button>
+                            </div>
+                        </div>
+                        <div class="control-row">
+                            <span>Scale</span>
+                            <div class="btn-group">
+                                <button id="err-scale-dec" class="mini-btn">-</button>
+                                <button id="err-scale-inc" class="mini-btn">+</button>
+                            </div>
+                        </div>
+                        <div class="control-row">
+                            <span>Width</span>
+                            <div class="btn-group">
+                                <button id="err-width-dec" class="mini-btn">-</button>
+                                <button id="err-width-inc" class="mini-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+</body>
+</html>
