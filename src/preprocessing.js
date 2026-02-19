@@ -90,9 +90,11 @@ export class PreProcessingUIManager {
         this.sliderRotate.addEventListener("input", (e) => {
             numRotate.value = e.target.value;
         });
+
         this.numRotate.addEventListener("input", (e) => {
             sliderRotate.value = e.target.value;
         });
+
         this.sliderThresh.addEventListener("input", (e) => (this.valThresh.innerText = e.target.value));
 
         this.btnApplyProc.addEventListener("click", async () => {
@@ -102,6 +104,28 @@ export class PreProcessingUIManager {
             if (!original) {
                 this.updateStatus(`No image loaded for ${side}.`);
                 return;
+            }
+
+            const hasFeatures = this.state.features.keyPoints[side].length > 0;
+
+            if (hasFeatures) {
+                const confirmMsg = "Applying pre-processing will reset all current keypoints and matches to avoid an invalid matching. " +
+                "Press Cancel and save/export your matching data to avoid losing it.\n\n" +
+                "Press OK to processed with the pre-processing.";
+
+                if (!confirm(confirmMsg)) {
+                    return; // User cancelled
+                }
+
+                this.state.features.reset();
+
+                const otherSide = side === 'left' ? 'right' : 'left';
+                if (this.state[side].viewer && this.state[side].viewer.viewer) {
+                    this.state[side].viewer.viewer.clearOverlays();
+                }
+                if (this.state[otherSide].viewer && this.state[otherSide].viewer.viewer) {
+                    this.state[otherSide].viewer.viewer.clearOverlays();
+                }
             }
 
             this.updateStatus("Processing...");
