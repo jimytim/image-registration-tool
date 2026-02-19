@@ -85,6 +85,29 @@
             <button class="action-btn" id="btn-settings">Settings</button>
         </div>
 
+        <div id="help-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Help Documentation</h3>
+                    <span class="close-modal" id="btn-close-help-x">&times;</span>
+                </div>
+
+                <nav class="nav-tabs" style="border-bottom: 1px solid var(--border);">
+                    <button class="tab-link help-tab-link active" data-target="help-matching">Matching</button>
+                    <button class="tab-link help-tab-link" data-target="help-preprocessing">Pre-Processing</button>
+                    <button class="tab-link help-tab-link" data-target="help-inspection">Inspection</button>
+                </nav>
+
+                <div class="modal-body" id="help-content-container">
+                    <p>Loading help content...</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="action-btn" id="btn-close-help">Close</button>
+                </div>
+            </div>
+        </div>
+
         <div id="settings-modal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">

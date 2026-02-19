@@ -48,28 +48,49 @@ class App {
             document.getElementById("fileDropdown").classList.toggle("show");
         });
 
-        // Close dropdown when clicking outside
-        window.onclick = function (event) {
-            if (!event.target.matches(".dropbtn") && !event.target.matches(".dropbtn *")) {
-                const dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].classList.contains("show")) {
-                        dropdowns[i].classList.remove("show");
-                    }
-                }
-            }
-
-            const modal = document.getElementById("settings-modal");
-            if (event.target === modal) {
-                 modal.classList.add("hidden");
-            }
-        };
-
         /* --- Reset Button --- */
         document.getElementById("btn-reset").addEventListener("click", () => {
             if (confirm("Are you sure you want to reset everything? This will clear all images and data.")) {
                 this.handleReset();
             }
+        });
+
+        /* --- Help Modal Logic --- */
+        this.loadHelpContent(); // Fetch HTML and inject it
+
+        const helpModal = document.getElementById("help-modal");
+        const btnHelp = document.getElementById("btn-help");
+        const btnCloseHelp = document.getElementById("btn-close-help");
+        const btnCloseHelpX = document.getElementById("btn-close-help-x");
+
+        // Open modal
+        btnHelp.addEventListener("click", () => {
+            helpModal.classList.remove("hidden");
+        });
+
+        // Close modal
+        const closeHelp = () => helpModal.classList.add("hidden");
+        btnCloseHelp.addEventListener("click", closeHelp);
+        btnCloseHelpX.addEventListener("click", closeHelp);
+
+        // Help Modal Tab Switching
+        const helpTabLinks = document.querySelectorAll(".help-tab-link");
+        helpTabLinks.forEach(link => {
+            link.addEventListener("click", (e) => {
+                // Remove active class from all help tabs
+                helpTabLinks.forEach(l => l.classList.remove("active"));
+                e.target.classList.add("active");
+
+                // Hide all help sections inside the container
+                document.querySelectorAll(".help-section").forEach(sec => sec.classList.add("hidden"));
+
+                // Show the targeted section
+                const targetId = e.target.getAttribute("data-target");
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.remove("hidden");
+                }
+            });
         });
 
         /* --- Settings Modal --- */
@@ -141,6 +162,28 @@ class App {
         document.getElementById("tab-inspection").addEventListener("click", () => {
             if (this.currentTab != "inspection") this.openTab("inspection");
         });
+
+        // Close dropdown when clicking outside
+        window.onclick = function (event) {
+            if (!event.target.matches(".dropbtn") && !event.target.matches(".dropbtn *")) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains("show")) {
+                        dropdowns[i].classList.remove("show");
+                    }
+                }
+            }
+
+            const settingsModal = document.getElementById("settings-modal");
+            if (event.target === settingsModal) {
+                 settingsModal.classList.add("hidden");
+            }
+
+            // Add this block for the help modal:
+            if (event.target === helpModal) {
+                 helpModal.classList.add("hidden");
+            }
+        };
 
         // Instantiate tabs UI Managers
         this.preprocessingUI = new PreProcessingUIManager(this.state, this.viewers.preprocessing);
@@ -467,6 +510,19 @@ class App {
         } catch (e) {
             console.error("Export failed:", e);
             this.updateStatus("Error exporting matching.");
+        }
+    }
+
+    async loadHelpContent() {
+        try {
+            const response = await fetch('help.html');
+            if (!response.ok) throw new Error("Network response was not ok");
+            const htmlText = await response.text();
+            document.getElementById("help-content-container").innerHTML = htmlText;
+        } catch (error) {
+            console.error("Failed to load help file:", error);
+            document.getElementById("help-content-container").innerHTML =
+                "<p style='color: #ff5252;'>Error loading help content. Please check the console.</p>";
         }
     }
 

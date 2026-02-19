@@ -1,0 +1,55 @@
+<div id="help-matching" class="help-section">
+    <!-- <h3 style="color: var(--accent); margin-bottom: 10px;">Matching Images</h3> -->
+    <p>Before you begin matching, you must load the images you want to register. Use the <strong>File</strong> menu in the top-left corner to select <strong>Open Left Image</strong> and <strong>Open Right Image</strong>.</p>
+
+    <hr style="border-color: var(--border); margin: 15px 0;">
+
+    <h4 style="color: var(--text-light); margin-bottom: 8px;">Navigation Controls</h4>
+    <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li><strong>Zoom:</strong> Use your <strong>Mouse Wheel</strong> to zoom in and out of the image viewers.</li>
+        <li><strong>Pan/Drag:</strong> Click and drag using the <strong>Right Mouse Button</strong> to move around the images.</li>
+    </ul>
+
+    <h4 style="color: var(--text-light); margin-bottom: 8px;">Manual Mode Tools</h4>
+    <p style="margin-bottom: 10px;">In manual mode, use the floating toolbar at the bottom of the screen to manage your keypoints:</p>
+    <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li style="margin-bottom: 6px;"><strong>Place:</strong> Click on either image to place your first keypoint. To complete the match, you must then place the corresponding keypoint on the opposite image.</li>
+        <li style="margin-bottom: 6px;"><strong>Edit:</strong> Select this tool to click and drag a previously placed keypoint to fine-tune its exact position.</li>
+        <li style="margin-bottom: 6px;"><strong>Remove:</strong> Click on an existing keypoint to delete it. This will automatically remove its paired keypoint on the other side to keep your matching one-to-one.</li>
+        <li><strong>Clear:</strong> Click the red Clear button to instantly delete all keypoints and reset your matching progress.</li>
+        <li style="margin-bottom: 6px;"><strong>Coordinate Table:</strong> Check the <strong>Table</strong> checkbox in the floating toolbar to open a side panel displaying the coordinates for all your matched keypoints. You can click on any row in this table to automatically pan and center both viewers on that specific pair of keypoints.</li>
+    </ul>
+
+    <hr style="border-color: var(--border); margin: 15px 0;">
+
+    <h4 style="color: var(--text-light); margin-bottom: 8px;">Automatic Mode Tools</h4>
+    <p style="margin-bottom: 10px;">Switch to Automatic mode using the toggle at the top right. Use the left sidebar to generate matches using OpenCV algorithms:</p>
+
+    <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li style="margin-bottom: 6px;"><strong>Algorithm Selection:</strong> Choose a feature detector from the dropdown (such as ORB, SIFT, or AKAZE) and adjust its specific parameters.</li>
+        <li style="margin-bottom: 6px;"><strong>Detect:</strong> Click to automatically find keypoints and extract descriptors for both the left and right images.</li>
+        <li style="margin-bottom: 6px;"><strong>Match:</strong> Once features are detected, click this to find raw matching candidates between the two images based on their visual similarity.</li>
+        <li style="margin-bottom: 6px;"><strong>Filter:</strong> Click to clean up the raw matches using a RANSAC algorithm. This removes incorrect matches (outliers) by finding a consistent geometric transformation between the images, highlighting the good matches in red.</li>
+        <li><strong>Clear:</strong> Removes all automatically generated keypoints and resets the matching state.</li>
+    </ul>
+</div>
+
+<div id="help-inspection" class="help-section hidden">
+    <!-- <h3 style="color: var(--accent); margin-bottom: 10px;">Inspecting Results</h3> -->
+    <p>Verify the accuracy of your registration.</p>
+    <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li><strong>Preview:</strong> Shows an overlay of the transformed right image on top of the left image.</li>
+        <li><strong>Error Field:</strong> Displays a vector field illustrating local transformation errors and displacements.</li>
+    </ul>
+</div>
+
+<div id="help-preprocessing" class="help-section hidden">
+    <!-- <h3 style="color: var(--accent); margin-bottom: 10px;">Pre-Processing Images</h3> -->
+    <p>Use this tab to clean up images before attempting to match them.</p>
+    <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li>Adjust the <strong>Crop</strong> to remove unwanted borders.</li>
+        <li>Use <strong>Rotation</strong> to align the baseline.</li>
+        <li>Apply <strong>Thresholding</strong> to isolate high-contrast features.</li>
+    </ul>
+</div>
+
