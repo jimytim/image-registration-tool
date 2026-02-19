@@ -485,6 +485,12 @@ class App {
 
         this.state.features.reset();
 
+        document.getElementById("input-left-img").value = "";
+        document.getElementById("input-right-img").value = "";
+        document.getElementById("input-left-meta").value = "";
+        document.getElementById("input-right-meta").value = "";
+        document.getElementById("input-import-matching").value = "";
+
         Object.values(this.viewers).forEach(wrapper => {
             if (wrapper && wrapper.viewer) {
                 wrapper.viewer.close();         // Removes the image
