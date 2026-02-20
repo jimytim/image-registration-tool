@@ -57,10 +57,10 @@ export class PreProcessingUIManager {
     getPreprocessingParameters() {
         return {
             crop: {
-                top: parseInt(this.cropTop.value) || 0,
-                bottom: parseInt(this.cropBottom.value) || 0,
-                left: parseInt(this.cropLeft.value) || 0,
-                right: parseInt(this.cropRight.value) || 0,
+                top: Math.max(0, parseInt(this.cropTop.value) || 0),
+                bottom: Math.max(0, parseInt(this.cropBottom.value) || 0),
+                left: Math.max(0, parseInt(this.cropLeft.value) || 0),
+                right: Math.max(0, parseInt(this.cropRight.value) || 0),
             },
             rotation: parseFloat(this.sliderRotate.value) || 0,
             threshold: parseInt(this.sliderThresh.value) || 0,
