@@ -207,11 +207,18 @@ input, select {
 #help-modal .modal-content {
     width: 800px;
     max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
-#help-content {
-    max-height: 70vh;
+#help-modal .modal-body {
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
+}
+
+#help-content-container {
     padding: 20px;
 }
 
