@@ -1,6 +1,14 @@
 <div id="help-matching" class="help-section">
-    <!-- <h3 style="color: var(--accent); margin-bottom: 10px;">Matching Images</h3> -->
     <p>Before you begin matching, you must load the images you want to register. Use the <strong>File</strong> menu in the top-left corner to select <strong>Open Left Image</strong> and <strong>Open Right Image</strong>.</p>
+
+    <div style="background-color: rgba(255, 165, 0, 0.15); border-left: 4px solid #ffa500; padding: 12px; margin: 15px 0; border-radius: 4px;">
+        <p style="color: #ffcc00; margin-bottom: 5px; font-weight: bold;">
+            <i class="fas fa-exclamation-triangle"></i> Important: Frame of Reference
+        </p>
+        <p style="font-size: 0.9rem; line-height: 1.4;">
+            In the current implementation, the <strong>Left Image</strong> is always used as the primary frame of reference. If your images have different sizes or magnifications, open the image with the <strong>larger physical area</strong> or <strong>lower magnification</strong> as the Left Image. This ensures the transformed (right) image is correctly displayed as an overlay on top of the reference (left) image.
+        </p>
+    </div>
 
     <hr style="border-color: var(--border); margin: 15px 0;">
 
