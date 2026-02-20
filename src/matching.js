@@ -70,6 +70,7 @@ export class MatchingUIManager {
 
         // Automatic UI
         this.algoSelect = document.getElementById("algo-select");
+        this.lastSelectedAlgo = this.algoSelect.value;
         this.algoParamsContainer = document.getElementById("dynamic-params");
         this.detectBtn = document.getElementById("detect-btn");
         this.matchBtn = document.getElementById("match-btn");
@@ -182,7 +183,39 @@ export class MatchingUIManager {
         });
 
         // Automatic UI
-        this.algoSelect.addEventListener('change', (e) => this.renderAlgoParams(e.target.value));
+        this.algoSelect.addEventListener('change', (e) => {
+            const hasFeatures = this.state.features.keyPoints.left.length > 0 ||
+                                this.state.features.keyPoints.right.length > 0;
+
+            if (hasFeatures) {
+                const confirmClear = confirm(
+                    "You cannot change the algorithm while features exist.\n\n" +
+                    "Click 'OK' to CLEAR existing features and switch algorithms, or 'Cancel' to abort."
+                );
+
+                if (confirmClear) {
+                    this.state.features.reset();
+
+                    this.left.requestRedraw(this.state.features.keyPoints.left);
+                    this.right.requestRedraw(this.state.features.keyPoints.right);
+                    if (this.areLinesEnabled) this.requestLineRedraw();
+
+                    this.matchBtn.disabled = true;
+                    this.filterBtn.disabled = true;
+                    if (this.state.left.imageCanvas && this.state.right.imageCanvas) {
+                        this.detectBtn.disabled = false;
+                    }
+
+                    console.log("Features cleared due to algorithm change.");
+                } else {
+                    this.algoSelect.value = this.lastSelectedAlgo;
+                    return;
+                }
+            }
+
+            this.lastSelectedAlgo = e.target.value;
+            this.renderAlgoParams(e.target.value);
+        });
 
         this.detectBtn.addEventListener('click', () => {
             const algo = this.algoSelect.value;
@@ -204,6 +237,7 @@ export class MatchingUIManager {
                     this.right.requestRedraw(this.state.features.keyPoints["right"]);
 
                     this.matchBtn.disabled = false;
+                    this.detectBtn.disabled = true;
                     console.log(`Left: ${res1.keypoints.size()}, Right: ${res2.keypoints.size()}`);
 
                 } catch (e) {
@@ -246,6 +280,7 @@ export class MatchingUIManager {
                     if(this.areLinesEnabled) this.requestLineRedraw();
 
                     this.filterBtn.disabled = false;
+                    this.matchBtn.disabled = true;
 
                 } catch (e) {
                     console.log("Error: " + e);
@@ -291,6 +326,8 @@ export class MatchingUIManager {
                     this.left.requestRedraw(this.state.features.keyPoints.left);
                     this.right.requestRedraw(this.state.features.keyPoints.right);
 
+                    this.filterBtn.disabled = true;
+
                     console.log(`Filtered ${goodMatches.length} / ${candidates.length} matches.`);
 
                 } catch (e) {
@@ -311,6 +348,10 @@ export class MatchingUIManager {
             this.matchBtn.disabled = true;
             this.filterBtn.disabled = true;
 
+            if (this.state.left.imageCanvas && this.state.right.imageCanvas) {
+                this.detectBtn.disabled = false;
+            }
+
             console.log("Automatic features cleared.");
         });
     }
@@ -330,6 +371,7 @@ export class MatchingUIManager {
         this.filterBtn.disabled = true;
 
         this.algoSelect.selectedIndex = 0;
+        this.lastSelectedAlgo = this.algoSelect.value;
         this.renderAlgoParams(this.algoSelect.value);
 
         this.selectManualTool(ManualTool.PLACE);
