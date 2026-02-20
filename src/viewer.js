@@ -45,6 +45,8 @@ export class OSDViewer {
         this.boundOpen = null;
 
         this.isRedrawPending = false;
+
+        this.enableRightClickPan();
     }
 
     openImage(url, width, height) {
@@ -246,7 +248,6 @@ export class MatchingOSDViewer extends OSDViewer {
     constructor(id, side, overrides = {}) {
         super(id, overrides);
         this.side = side;
-        this.enableRightClickPan();
         this._activeClickHandler = null;
     }
 
