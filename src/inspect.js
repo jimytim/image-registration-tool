@@ -53,7 +53,7 @@ export class InspectUIManager {
             }
 
             this.previewRenderer.update(rightCanvas, pairs, transform);
-            this.errorRenderer.update(pairs, transform);
+            this.errorRenderer.update(rightCanvas, pairs, transform);
         }
     }
 
@@ -384,8 +384,13 @@ class ErrorFieldRenderer {
         this.render();
     }
 
-    update(pairs, transform) {
-        this.lastData = { pairs, transform };
+    update(rightCanvas, pairs, transform) {
+        this.lastData = {
+            pairs,
+            transform,
+            rightWidth: rightCanvas ? rightCanvas.width : 0,
+            rightHeight: rightCanvas ? rightCanvas.height : 0
+        };
         this.render();
     }
 
@@ -398,10 +403,10 @@ class ErrorFieldRenderer {
         if (!this.lastData) return;
         if (!this.viewer.world.getItemAt(0)) return;
 
-        // const baseItem = this.viewer.world.getItemAt(0);
-        // if (!baseItem) return;
+        const baseItem = this.viewer.world.getItemAt(0);
+        if (!baseItem) return;
 
-        const { pairs, transform } = this.lastData;
+        const { pairs, transform, rightWidth, rightHeight } = this.lastData;
         const { spacing, scaleFactor, lineWidth } = this.settings;
         const { scale, angleDeg, tx, ty } = transform;
         const angleRad = (angleDeg * Math.PI) / 180;
@@ -471,6 +476,38 @@ class ErrorFieldRenderer {
                 );
                 this.ctx.stroke();
             }
+        }
+
+        if (rightWidth && rightHeight) {
+            const corners = [
+                { x: 0, y: 0 },
+                { x: rightWidth, y: 0 },
+                { x: rightWidth, y: rightHeight },
+                { x: 0, y: rightHeight }
+            ];
+
+            this.ctx.save();
+            this.ctx.strokeStyle = "yellow";
+            this.ctx.lineWidth = 2;
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.beginPath();
+
+            corners.forEach((pt, i) => {
+                // Apply affine transform to right image pixel coordinates
+                const lx = scale * (Math.cos(angleRad) * pt.x - Math.sin(angleRad) * pt.y) + tx;
+                const ly = scale * (Math.sin(angleRad) * pt.x + Math.cos(angleRad) * pt.y) + ty;
+
+                // Convert transformed image pixels -> viewport -> screen pixels
+                const vpPt = baseItem.imageToViewportCoordinates(lx, ly);
+                const screenPt = this.viewer.viewport.pixelFromPoint(vpPt);
+
+                if (i === 0) this.ctx.moveTo(screenPt.x, screenPt.y);
+                else this.ctx.lineTo(screenPt.x, screenPt.y);
+            });
+
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.restore();
         }
     }
 }
