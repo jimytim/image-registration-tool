@@ -2,6 +2,7 @@ export const FeaturesEvents = Object.freeze({
     KEYPOINT_ADDED:   'keypoint_added',
     KEYPOINT_UPDATED: 'keypoint_updated',
     KEYPOINT_REMOVED: 'keypoint_removed',
+    MATCHES_UPDATED:  'matches_updated',
     RESET:            'reset'
 });
 
@@ -163,6 +164,11 @@ export class Features {
         }
     }
 
+    setMatches(matches) {
+        this.matches = matches;
+        this._notify(FeaturesEvents.MATCHES_UPDATED);
+    }
+
     setMatchesFromOpenCV(dMatchVector) {
         this.matches = [];
 
@@ -175,6 +181,8 @@ export class Features {
             this.keyPoints.left[m.queryIdx].setProperty("isMatched", true);
             this.keyPoints.right[m.trainIdx].setProperty("isMatched", true);
         }
+
+        this._notify(FeaturesEvents.MATCHES_UPDATED);
     }
 
     resetKeyPointsMatchedFlag() {

@@ -198,7 +198,6 @@ export class MatchingUIManager {
 
                     this.left.requestRedraw(this.state.features.keyPoints.left);
                     this.right.requestRedraw(this.state.features.keyPoints.right);
-                    if (this.areLinesEnabled) this.requestLineRedraw();
 
                     this.matchBtn.disabled = true;
                     this.filterBtn.disabled = true;
@@ -277,8 +276,6 @@ export class MatchingUIManager {
 
                     console.log(`Found ${this.state.features.matches.length} raw candidates.`);
 
-                    if(this.areLinesEnabled) this.requestLineRedraw();
-
                     this.filterBtn.disabled = false;
                     this.matchBtn.disabled = true;
 
@@ -310,7 +307,7 @@ export class MatchingUIManager {
                         this.state.features.keyPoints.right
                     );
 
-                    this.state.features.matches = goodMatches;
+                    this.state.features.setMatches(goodMatches);
 
                     this.state.features.keyPoints.left.forEach(kp => kp.setProperty("isGoodMatch", false));
                     this.state.features.keyPoints.right.forEach(kp => kp.setProperty("isGoodMatch", false));
@@ -321,7 +318,6 @@ export class MatchingUIManager {
                         this.state.features.keyPoints.right[match.rightIdx].setProperty("isGoodMatch", true);
                     });
 
-                    if(this.areLinesEnabled) this.requestLineRedraw();
 
                     this.left.requestRedraw(this.state.features.keyPoints.left);
                     this.right.requestRedraw(this.state.features.keyPoints.right);
@@ -342,8 +338,6 @@ export class MatchingUIManager {
 
             this.left.requestRedraw(this.state.features.keyPoints.left);
             this.right.requestRedraw(this.state.features.keyPoints.right);
-
-            if (this.areLinesEnabled) this.requestLineRedraw();
 
             this.matchBtn.disabled = true;
             this.filterBtn.disabled = true;
