@@ -292,7 +292,8 @@ input, select {
 }
 .sidebar h3, .sidebar h4 { margin-bottom: 10px; color: var(--text-light); }
 .control-group { margin-bottom: 15px; }
-.control-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; }
+.control-group label,
+.control-group .group-title { display: block; margin-bottom: 5px; font-size: 0.85rem; }
 .input-row { display: flex; gap: 5px; margin-bottom: 5px; }
 
 /* Viewers */
@@ -337,6 +338,21 @@ input, select {
 .label-bottom-left {
     bottom: 10px;
     left: 10px;
+}
+
+/* --- Input Fields with Micro-Labels for pre-processing sidebar --- */
+.input-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Split the space evenly in the input-row */
+}
+
+.control-group .micro-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-main);
+    margin-bottom: 2px; /* Keep it tight to the input */
+    font-weight: normal;
 }
 
 /* --- Floating Toolbar (Manual Mode) --- */
