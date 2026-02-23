@@ -40,7 +40,6 @@ class App {
     }
 
     setupUI() {
-        // this.matchingUI = new MatchingUIManager();
 
         // File Dropdown Toggle
         document.getElementById("fileMenuBtn").addEventListener("click", (e) => {
@@ -56,7 +55,7 @@ class App {
         });
 
         /* --- Help Modal Logic --- */
-        this.loadHelpContent(); // Fetch HTML and inject it
+        this.loadHelpContent();
 
         const helpModal = document.getElementById("help-modal");
         const btnHelp = document.getElementById("btn-help");
@@ -179,7 +178,6 @@ class App {
                  settingsModal.classList.add("hidden");
             }
 
-            // Add this block for the help modal:
             if (event.target === helpModal) {
                  helpModal.classList.add("hidden");
             }
@@ -245,15 +243,12 @@ class App {
         this.matchingUI.switchToMode(mode);
 
         // TODO: Update the viewers (goHome, ..) of the current tab when mode is changed
-        // setTimeout(() => {
-        //     this.matchingUI.layoutChanged();
-        // }, 50);
 
         console.log(`Mode changed to: ${mode}`);
     }
 
     openTab(tabName) {
-        // console.log(`Switching to tab ${tabName}`);
+        console.debug(`Switching to tab ${tabName}`);
 
         // Hide previous tab
         if (this.currentTab) {
