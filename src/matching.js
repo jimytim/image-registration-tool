@@ -99,6 +99,9 @@ export class MatchingUIManager {
                 this.left.drawData = null;
                 this.right.drawData = null;
                 this.state.features.reset()
+                if (this.showTableCheckbox.checked) {
+                    this.tableContainer.classList.remove("hidden");
+                }
                 break;
             case "automatic":
                 this.removeClickHandler();
@@ -107,6 +110,7 @@ export class MatchingUIManager {
                 this.state.features.reset();
                 this.left.viewer.clearOverlays();
                 this.right.viewer.clearOverlays();
+                this.tableContainer.classList.add("hidden");
                 break;
         }
 
