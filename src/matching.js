@@ -72,6 +72,10 @@ export class MatchingUIManager {
         this.algoSelect = document.getElementById("algo-select");
         this.lastSelectedAlgo = this.algoSelect.value;
         this.algoParamsContainer = document.getElementById("dynamic-params");
+
+        this.candidateLimitSlider = document.getElementById("filter-candidate-limit");
+        this.candidateLimitVal = document.getElementById("filter-candidate-val");
+
         this.detectBtn = document.getElementById("detect-btn");
         this.matchBtn = document.getElementById("match-btn");
         this.filterBtn = document.getElementById("filter-btn");
@@ -182,6 +186,12 @@ export class MatchingUIManager {
             // }, 50);
         });
 
+        if (this.candidateLimitSlider && this.candidateLimitVal) {
+            this.candidateLimitSlider.addEventListener('input', (e) => {
+                this.candidateLimitVal.innerText = e.target.value;
+            });
+        }
+
         // Automatic UI
         this.algoSelect.addEventListener('change', (e) => {
             const hasFeatures = this.state.features.keyPoints.left.length > 0 ||
@@ -249,18 +259,11 @@ export class MatchingUIManager {
         this.matchBtn.addEventListener('click', () => {
             console.log("Matching by descriptors...");
 
-            // this.state.left.viewer.clearOverlays();
-            // this.state.right.viewer.clearOverlays();
-            // lineDrawer.clear();
-
-            // const matchLimit = parseInt(sliderMatchLimit.value) || 200;
-            const matchLimit = 200;
-
             setTimeout(() => {
                 try {
                     const leftDescriptors = this.state.features.descriptors.left;
                     const rightDescriptors = this.state.features.descriptors.right;
-                    const matches = matchFeatures(leftDescriptors, rightDescriptors, matchLimit);
+                    const matches = matchFeatures(leftDescriptors, rightDescriptors);
 
                     if (matches.size() === 0) {
                         console.log("No matches found.");
@@ -290,7 +293,7 @@ export class MatchingUIManager {
             if (!this.state.features.matches.length) return;
             console.log("Filtering with RANSAC...");
 
-            const candidateLimit = 100;
+            const candidateLimit = parseInt(this.candidateLimitSlider.value);
 
             setTimeout(() => {
                 try {

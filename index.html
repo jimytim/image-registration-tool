@@ -200,6 +200,14 @@
 
                 <div id="dynamic-params" style="margin-top: 15px;"></div>
 
+                <div class="control-group" style="margin-top: 15px;">
+                    <label for="filter-candidate-limit">Filter Top N Candidate</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="filter-candidate-limit" min="10" max="1000" value="100" step="10" style="flex-grow: 1; margin: 0;">
+                        <span id="filter-candidate-val" style="width: 35px; text-align: right;">100</span>
+                    </div>
+                </div>
+
                 <div class="control-group">
                     <h4>Actions</h4>
                     <button class="full-width-btn" id="detect-btn" disabled>Detect</button>
