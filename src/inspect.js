@@ -142,8 +142,16 @@ class PreviewRenderer {
     }
 
     clear() {
-        this.lastData = null;
+        this.lastRenderData = null;
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.rightImageItem) {
+            this.viewer.world.removeItem(this.rightImageItem);
+            this.rightImageItem = null;
+        }
+
+        this.currentRightCanvas = null;
     }
 
     update(rightCanvas, pairs, transform) {
